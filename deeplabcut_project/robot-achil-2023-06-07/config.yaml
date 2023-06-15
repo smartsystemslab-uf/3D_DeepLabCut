@@ -1,0 +1,100 @@
+    # Project definitions (do not edit)
+Task: robot
+scorer: achil
+date: Jun7
+multianimalproject: true
+identity: false
+
+    # Project path (change when moving around)
+project_path: /app/deeplabcut_project/robot-achil-2023-06-07
+
+    # Annotation data set configuration (and individual video cropping parameters)
+video_sets:
+  /app/deeplabcut_project/robot-achil-2023-06-07/videos/output_cam2.avi:
+    crop: 0, 1280, 0, 720
+individuals:
+- arm
+- person
+uniquebodyparts: []
+multianimalbodyparts:
+- head
+- shoulder_l
+- shoulder_r
+- elbow_l
+- elbow_r
+- wrist_l
+- wrist_r
+- hip_l
+- hip_r
+- knee_l
+- knee_r
+- ankle_l
+- ankle_r
+- base
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- finger1
+- finger2
+skeleton:
+- - bodypart1
+  - bodypart2
+- - bodypart2
+  - bodypart3
+- - bodypart1
+  - bodypart3
+bodyparts: MULTI!
+start: 0
+stop: 1
+numframes2pick: 20
+
+    # Plotting configuration
+skeleton_color: black
+pcutoff: 0.6
+dotsize: 12
+alphavalue: 0.7
+colormap: rainbow
+
+    # Training,Evaluation and Analysis configuration
+TrainingFraction:
+- 0.95
+iteration: 0
+default_net_type: dlcrnet_ms5
+default_augmenter: multi-animal-imgaug
+snapshotindex: -1
+batch_size: 8
+
+    # Cropping Parameters (for analysis and outlier frame detection)
+cropping: false
+    #if cropping is true for analysis, then set the values here:
+x1: 0
+x2: 640
+y1: 277
+y2: 624
+
+    # Refinement configuration (parameters from annotation dataset configuration also relevant in this stage)
+corner2move2:
+- 50
+- 50
+move2corner: true
+default_track_method: ellipse
+head: 0
+shoulder l: 1
+shoulder r: 2
+elbow l: 3
+elbow r: 4
+wrist l: 5
+hip l: 7
+hip r: 8
+knee l: 9
+knee r: 10
+ankle l: 11
+ankle r: 12
+base: 13
+joint1: 14
+joint2: 15
+joint3: 16
+joint4: 17
+finger1: 18
+finger2: 19

@@ -1,0 +1,64 @@
+    # Project definitions (do not edit)
+Task: cobot_test
+scorer: achil
+date: Jun7
+multianimalproject: true
+identity: false
+
+    # Project path (change when moving around)
+project_path: /app/deeplabcut_project/cobot_test-achil-2023-06-07
+
+    # Annotation data set configuration (and individual video cropping parameters)
+video_sets:
+  /app/deeplabcut_project/cobot_test-achil-2023-06-07/videos/output_cam2.avi:
+    crop: 0, 1280, 0, 720
+individuals:
+- individual1
+- individual2
+- individual3
+uniquebodyparts: []
+multianimalbodyparts:
+- bodypart1
+- bodypart2
+- bodypart3
+skeleton:
+- - bodypart1
+  - bodypart2
+- - bodypart2
+  - bodypart3
+- - bodypart1
+  - bodypart3
+bodyparts: MULTI!
+start: 0
+stop: 1
+numframes2pick: 20
+
+    # Plotting configuration
+skeleton_color: black
+pcutoff: 0.6
+dotsize: 12
+alphavalue: 0.7
+colormap: rainbow
+
+    # Training,Evaluation and Analysis configuration
+TrainingFraction:
+- 0.95
+iteration: 0
+default_net_type: dlcrnet_ms5
+default_augmenter: multi-animal-imgaug
+snapshotindex: -1
+batch_size: 8
+
+    # Cropping Parameters (for analysis and outlier frame detection)
+cropping: false
+    #if cropping is true for analysis, then set the values here:
+x1: 0
+x2: 640
+y1: 277
+y2: 624
+
+    # Refinement configuration (parameters from annotation dataset configuration also relevant in this stage)
+corner2move2:
+- 50
+- 50
+move2corner: true

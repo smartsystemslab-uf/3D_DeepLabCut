@@ -1,0 +1,6 @@
+model_checkpoint_path: "/app/deeplabcut_project/uf_cobots-smart_systems-2023-06-07/dlc-models/iteration-0/uf_cobotsJun7-trainset95shuffle1/train/snapshot-100000"
+all_model_checkpoint_paths: "/app/deeplabcut_project/uf_cobots-smart_systems-2023-06-07/dlc-models/iteration-0/uf_cobotsJun7-trainset95shuffle1/train/snapshot-60000"
+all_model_checkpoint_paths: "/app/deeplabcut_project/uf_cobots-smart_systems-2023-06-07/dlc-models/iteration-0/uf_cobotsJun7-trainset95shuffle1/train/snapshot-70000"
+all_model_checkpoint_paths: "/app/deeplabcut_project/uf_cobots-smart_systems-2023-06-07/dlc-models/iteration-0/uf_cobotsJun7-trainset95shuffle1/train/snapshot-80000"
+all_model_checkpoint_paths: "/app/deeplabcut_project/uf_cobots-smart_systems-2023-06-07/dlc-models/iteration-0/uf_cobotsJun7-trainset95shuffle1/train/snapshot-90000"
+all_model_checkpoint_paths: "/app/deeplabcut_project/uf_cobots-smart_systems-2023-06-07/dlc-models/iteration-0/uf_cobotsJun7-trainset95shuffle1/train/snapshot-100000"

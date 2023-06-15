@@ -1,0 +1,6 @@
+model_checkpoint_path: "/app/deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/dlc-models/iteration-0/uf_cobots_multicamJun12-trainset95shuffle1/train/snapshot-50000"
+all_model_checkpoint_paths: "/app/deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/dlc-models/iteration-0/uf_cobots_multicamJun12-trainset95shuffle1/train/snapshot-10000"
+all_model_checkpoint_paths: "/app/deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/dlc-models/iteration-0/uf_cobots_multicamJun12-trainset95shuffle1/train/snapshot-20000"
+all_model_checkpoint_paths: "/app/deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/dlc-models/iteration-0/uf_cobots_multicamJun12-trainset95shuffle1/train/snapshot-30000"
+all_model_checkpoint_paths: "/app/deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/dlc-models/iteration-0/uf_cobots_multicamJun12-trainset95shuffle1/train/snapshot-40000"
+all_model_checkpoint_paths: "/app/deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/dlc-models/iteration-0/uf_cobots_multicamJun12-trainset95shuffle1/train/snapshot-50000"

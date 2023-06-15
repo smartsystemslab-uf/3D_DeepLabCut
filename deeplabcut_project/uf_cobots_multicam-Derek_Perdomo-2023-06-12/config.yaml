@@ -1,0 +1,114 @@
+    # Project definitions (do not edit)
+Task: uf_cobots_multicam
+scorer: Derek_Perdomo
+date: Jun12
+multianimalproject: true
+identity: false
+
+    # Project path (change when moving around)
+project_path: /app/deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12
+
+    # Annotation data set configuration (and individual video cropping parameters)
+video_sets:
+  /app/deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/videos/output_cam1.avi:
+    crop: 0, 1280, 0, 720
+  /app/deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/videos/output_cam2.avi:
+    crop: 0, 1280, 0, 720
+  /app/deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/videos/output_cam3.avi:
+    crop: 0, 1280, 0, 720
+individuals:
+- arm
+- person
+uniquebodyparts: []
+multianimalbodyparts: 
+- head
+- chest
+- shoulder_l
+- shoulder_r
+- elbow_l
+- elbow_r
+- wrist_l
+- wrist_r
+- pelvis
+- hip_l
+- hip_r
+- ankle_l
+- ankle_r
+- base
+- joint_1
+- joint_2
+- joint_3
+- joint_4
+- finger1
+- finger2
+skeleton:
+- - head
+  - chest
+- - chest
+  - shoulder_l
+- - chest
+  - shoulder_r
+- - chest
+  - pelvis
+- - shoulder_l
+  - elbow_l
+- - elbow_l
+  - wrist_l
+- - shoulder_r
+  - elbow_r
+- - elbow_r
+  - wrist_r
+- - pelvis
+  - hip_l
+- - pelvis
+  - hip_r
+- - hip_l
+  - ankle_l
+- - hip_r
+  - ankle_r
+- - base
+  - joint_1
+- - joint_1
+  - joint_2
+- - joint_2
+  - joint_3
+- - joint_3
+  - joint_4
+- - joint_4
+  - finger1
+- - joint_4
+  - finger2
+bodyparts: MULTI!
+start: 0
+stop: 1
+numframes2pick: 20
+
+    # Plotting configuration
+skeleton_color: black
+pcutoff: 0.6
+dotsize: 6
+alphavalue: 0.7
+colormap: rainbow
+
+    # Training,Evaluation and Analysis configuration
+TrainingFraction:
+- 0.95
+iteration: 0
+default_net_type: dlcrnet_ms5
+default_augmenter: multi-animal-imgaug
+snapshotindex: -1
+batch_size: 8
+
+    # Cropping Parameters (for analysis and outlier frame detection)
+cropping: false
+    #if cropping is true for analysis, then set the values here:
+x1: 0
+x2: 640
+y1: 277
+y2: 624
+
+    # Refinement configuration (parameters from annotation dataset configuration also relevant in this stage)
+corner2move2:
+- 50
+- 50
+move2corner: true
