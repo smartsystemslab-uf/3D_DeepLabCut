@@ -2,7 +2,12 @@ class Joint:
     def __init__(self):
         self.x = None
         self.y = None
-        
+class BoundingBox:
+    def __init__(self):
+        self.top = None
+        self.left= None
+        self.right= None
+        self.bot = None
 class Person:
     def __init__(self):
         self.head = Joint()
@@ -18,6 +23,7 @@ class Person:
         self.hip_r = Joint()
         self.ankle_r = Joint()
         self.pelvis = Joint()
+        self.joint_list = []
 
         # H5 POS Columns
         self.H5_HEAD_LOC_X = 66
@@ -62,6 +68,7 @@ class Arm:
         self.joint4 = Joint()
         self.finger1 = Joint()
         self.finger2 = Joint()
+        self.joint_list = []
 
         # H5 POS Columns
         self.H5_BASE_LOC_X = 45
