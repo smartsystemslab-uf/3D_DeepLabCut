@@ -128,19 +128,55 @@ def read_h5(file_prefix):
 
             frames.append(frame)
 
+    sys.setrecursionlimit(10000)
     with open("frame_data/"+file_prefix+".dat", "wb") as f:
         pickle.dump(frames, f)
     sys.setrecursionlimit(prev_rec_limit)
 
-def create_bounding_boxes():
-    pass
+def create_bounding_boxes(file_prefix):
+    prev_rec_limit = sys.getrecursionlimit()
+    sys.setrecursionlimit(10000)
+    file_name = 'frame_data/'+file_prefix+'.dat'
+    frames = pickle.load(open(file_name, 'rb'))
+    new_frames = []
+    for frame in frames:
+        arm_bbox = dt.BoundingBox()
+        person_bbox = dt.BoundingBox()
+        for joint in frame.person.joint_list:
+            if joint.y < person_bbox.bot:
+                person_bbox.bot = joint.y
+            if joint.y > person_bbox.top:
+                person_bbox.top = joint.y
+            if joint.x < person_bbox.left:
+                person_bbox.left = joint.x
+            if joint.x > person_bbox.right:
+                person_bbox.right = joint.x
+        
+        for joint in frame.arm.joint_list:
+            if joint.y < arm_bbox.bot:
+                arm_bbox.bot = joint.y
+            if joint.y > arm_bbox.top:
+                arm_bbox.top = joint.y
+            if joint.x < arm_bbox.left:
+                arm_bbox.left = joint.x
+            if joint.x > arm_bbox.right:
+                arm_bbox.right = joint.x
+
+        frame.person.bbox = person_bbox
+        frame.arm.bbox = arm_bbox
+        new_frames.append(frame)
+
+    with open("frame_data/" + file_prefix + "_bb.dat", "wb") as f:
+        pickle.dump(new_frames, f)
+    sys.setrecursionlimit(prev_rec_limit)
 
 if __name__ == '__main__':
-    file_prefix = 'output_cam3DLC_resnet50_uf_cobots_multicamJun12shuffle1_50000'
+    file_prefix = 'output_cam2DLC_dlcrnetms5_uf_cobotsJun7shuffle1_100000'
+    #file_prefix = 'output_cam2DLC_resnet50_uf_cobots_multicamJun12shuffle1_50000'
 
     #read_pickles(file_prefix)
     #read_h5(file_prefix)
-    create_bounding_boxes()
+    create_bounding_boxes(file_prefix)
     
     print('Done')
 

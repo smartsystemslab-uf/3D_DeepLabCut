@@ -4,10 +4,10 @@ class Joint:
         self.y = None
 class BoundingBox:
     def __init__(self):
-        self.top = None
-        self.left= None
-        self.right= None
-        self.bot = None
+        self.top = -1
+        self.left= 1e9
+        self.right= -1
+        self.bot = 1e9
 class Person:
     def __init__(self):
         self.head = Joint()
@@ -24,6 +24,7 @@ class Person:
         self.ankle_r = Joint()
         self.pelvis = Joint()
         self.joint_list = []
+        self.bbox = BoundingBox()
 
         # H5 POS Columns
         self.H5_HEAD_LOC_X = 66
@@ -69,6 +70,7 @@ class Arm:
         self.finger1 = Joint()
         self.finger2 = Joint()
         self.joint_list = []
+        self.bbox = BoundingBox()
 
         # H5 POS Columns
         self.H5_BASE_LOC_X = 45
