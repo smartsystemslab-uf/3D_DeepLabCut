@@ -11,6 +11,9 @@ class Joint:
     def calc_diff(self, other_joint):
         return np.asarray([self.x - other_joint.x, self.y - other_joint.y])
 
+    def __str__(self):
+        return 'Joint: {} X: {} Y: {}'.format(self.name, self.x, self.y)
+
 
 class BoundingBox:
     def __init__(self, name, initial_vals=None):
@@ -79,88 +82,118 @@ class BoundingBox:
         self.right = int(self.right)
 
 
+class MovingWindow:
+    def __init__(self, length: int, width:int, weights: Union[tuple, list, iter, range] = None):
+        self.length = length
+        self.width = width
+        self.buffer = np.zeros((length, width, 2))
+        self.shape = self.buffer.shape
+
+        if not weights:
+            # weights = np.arange(length, 0, -1)
+            weights = np.ones(length)
+
+        self.weights = weights[:, np.newaxis, np.newaxis]
+
+    def __len__(self):
+        return self.length
+
+    def update(self, new_joints: Union[np.ndarray]):
+        self.buffer = np.roll(self.buffer, 1, axis=0)
+        self.buffer[0] = new_joints
+
+    def estimate(self):
+        denominator = sum(self.weights)
+        numerator = self.buffer * self.weights
+        return numerator.sum(axis=0)/denominator
+
+
 class Person:
-    def __init__(self, name):
-        self.head = Joint('head')
-        self.chest = Joint('chest')
-        self.shoulder_l = Joint('shoulder_l')
-        self.elbow_l = Joint('elbow_l')
-        self.wrist_l = Joint('wrist_l')
-        self.hip_l = Joint('hip_l')
-        self.ankle_l = Joint('ankle_l')
-        self.shoulder_r = Joint('shoulder_r')
-        self.elbow_r = Joint('elbow_r')
-        self.wrist_r = Joint('wrist_r')
-        self.hip_r = Joint('hip_r')
-        self.ankle_r = Joint('ankle_r')
-        self.pelvis = Joint('pelvis')
+    def __init__(self, name, window_length=5):
+        self.head = Joint('HEAD')
+        self.chest = Joint('CHEST')
+        self.shoulder_l = Joint('SHOULDER_L')
+        self.elbow_l = Joint('ELBOW_L')
+        self.wrist_l = Joint('WRIST_L')
+        self.hip_l = Joint('HIP_L')
+        self.ankle_l = Joint('ANKKLE_L')
+        self.shoulder_r = Joint('SHOULDER_R')
+        self.elbow_r = Joint('ELBOW_R')
+        self.wrist_r = Joint('WRIST_R')
+        self.hip_r = Joint('HIP_R')
+        self.ankle_r = Joint('ANKLE_R')
+        self.pelvis = Joint('PELVIS')
         self.joint_list = (self.head, self.chest, self.shoulder_l, self.elbow_l, self.wrist_l, self.hip_l, self.ankle_l,
                            self.shoulder_r, self.elbow_r, self.hip_r, self.ankle_r, self.pelvis)
         self.name = name
         self.bbox = BoundingBox(name+'_bb')
+        self.window = MovingWindow(length=window_length, width=len(self.joint_list))
 
         # H5 POS Columns
-        self.H5_HEAD_LOC_X = 66
-        self.H5_HEAD_LOC_Y = 67
-        self.H5_CHEST_LOC_X = 69
-        self.H5_CHEST_LOC_Y = 70
-        self.H5_SHOULDER_L_LOC_X = 72
-        self.H5_SHOULDER_L_LOC_Y = 73
-        self.H5_ELBOW_L_LOC_X = 78
-        self.H5_ELBOW_L_LOC_Y = 79
-        self.H5_WRIST_L_LOC_X = 84
-        self.H5_WRIST_L_LOC_Y = 85
-        self.H5_HIP_L_LOC_X = 93
-        self.H5_HIP_L_LOC_Y = 94
-        self.H5_ANKLE_L_LOC_X = 99
-        self.H5_ANKLE_L_LOC_Y = 100
-        self.H5_SHOULDER_R_LOC_X = 75
-        self.H5_SHOULDER_R_LOC_Y = 76
-        self.H5_ELBOW_R_LOC_X = 81
-        self.H5_ELBOW_R_LOC_Y = 82
-        self.H5_WRIST_R_LOC_X = 87
-        self.H5_WRIST_R_LOC_Y = 88
-        self.H5_HIP_R_LOC_X = 96
-        self.H5_HIP_R_LOC_Y = 97
-        self.H5_ANKLE_R_LOC_X = 102
-        self.H5_ANKLE_R_LOC_Y = 103
-        self.H5_PELVIS_LOC_X = 90
-        self.H5_PELVIS_LOC_Y = 91
+        self.h5_lookup = {}
+        self.h5_lookup['H5_HEAD_LOC_X'] = 66
+        self.h5_lookup['H5_HEAD_LOC_Y'] = 67
+        self.h5_lookup['H5_CHEST_LOC_X'] = 69
+        self.h5_lookup['H5_CHEST_LOC_Y'] = 70
+        self.h5_lookup['H5_SHOULDER_L_LOC_X'] = 72
+        self.h5_lookup['H5_SHOULDER_L_LOC_Y'] = 73
+        self.h5_lookup['H5_ELBOW_L_LOC_X'] = 78
+        self.h5_lookup['H5_ELBOW_L_LOC_Y'] = 79
+        self.h5_lookup['H5_WRIST_L_LOC_X'] = 84
+        self.h5_lookup['H5_WRIST_L_LOC_Y'] = 85
+        self.h5_lookup['H5_HIP_L_LOC_X'] = 93
+        self.h5_lookup['H5_HIP_L_LOC_Y'] = 94
+        self.h5_lookup['H5_ANKLE_L_LOC_X'] = 105
+        self.h5_lookup['H5_ANKLE_L_LOC_Y'] = 106
+        self.h5_lookup['H5_SHOULDER_R_LOC_X'] = 75
+        self.h5_lookup['H5_SHOULDER_R_LOC_Y'] = 76
+        self.h5_lookup['H5_ELBOW_R_LOC_X'] = 81
+        self.h5_lookup['H5_ELBOW_R_LOC_Y'] = 82
+        self.h5_lookup['H5_WRIST_R_LOC_X'] = 87
+        self.h5_lookup['H5_WRIST_R_LOC_Y'] = 88
+        self.h5_lookup['H5_HIP_R_LOC_X'] = 96
+        self.h5_lookup['H5_HIP_R_LOC_Y'] = 97
+        self.h5_lookup['H5_ANKLE_R_LOC_X'] = 108
+        self.h5_lookup['H5_ANKLE_R_LOC_Y'] = 109
+        self.h5_lookup['H5_PELVIS_LOC_X'] = 90
+        self.h5_lookup['H5_PELVIS_LOC_Y'] = 91
 
-        # Output Camera 2 has knees which are not needed
-        self.H5_ANKLE_L_2_LOC_X = 105
-        self.H5_ANKLE_L_2_LOC_Y = 106
-        self.H5_ANKLE_R_2_LOC_X = 108
-        self.H5_ANKLE_R_2_LOC_Y = 109
+        # # Output Camera 2 has knees which are not needed
+        # self.h5_lookup['H5_ANKLE_L_2_LOC_X'] = 105
+        # self.h5_lookup['H5_ANKLE_L_2_LOC_Y'] = 106
+        # self.h5_lookup['H5_ANKLE_R_2_LOC_X'] = 108
+        # self.h5_lookup['H5_ANKLE_R_2_LOC_Y'] = 109
 
 
 class Arm:
-    def __init__(self, name):
-        self.base = Joint('base')
-        self.joint1 = Joint('joint1')
-        self.joint2 = Joint('joint2')
-        self.joint3 = Joint('joint3')
-        self.joint4 = Joint('joint4')
-        self.finger1 = Joint('finger1')
-        self.finger2 = Joint('finger2')
+    def __init__(self, name, window_length=5):
+        self.base = Joint('BASE')
+        self.joint1 = Joint('JOINT1')
+        self.joint2 = Joint('JOINT2')
+        self.joint3 = Joint('JOINT3')
+        self.joint4 = Joint('JOINT4')
+        self.finger1 = Joint('FINGER1')
+        self.finger2 = Joint('FINGER2')
         self.joint_list = (self.base, self.joint1, self.joint2, self.joint3, self.joint4, self.finger1, self.finger2)
         self.bbox = BoundingBox(name+'_bb')
+        self.window = MovingWindow(length=window_length, width=len(self.joint_list))
 
         # H5 POS Columns
-        self.H5_BASE_LOC_X = 45
-        self.H5_BASE_LOC_Y = 46
-        self.H5_JOINT1_LOC_X = 48
-        self.H5_JOINT1_LOC_Y = 49
-        self.H5_JOINT2_LOC_X = 51
-        self.H5_JOINT2_LOC_Y = 52
-        self.H5_JOINT3_LOC_X = 54
-        self.H5_JOINT3_LOC_Y = 55
-        self.H5_JOINT4_LOC_X = 57
-        self.H5_JOINT4_LOC_Y = 58
-        self.H5_FINGER1_LOC_X = 60
-        self.H5_FINGER1_LOC_Y = 61
-        self.H5_FINGER2_LOC_X = 63
-        self.H5_FINGER2_LOC_Y = 64
+        self.h5_lookup = {}
+        self.h5_lookup['H5_BASE_LOC_X'] = 45
+        self.h5_lookup['H5_BASE_LOC_Y'] = 46
+        self.h5_lookup['H5_JOINT1_LOC_X'] = 48
+        self.h5_lookup['H5_JOINT1_LOC_Y'] = 49
+        self.h5_lookup['H5_JOINT2_LOC_X'] = 51
+        self.h5_lookup['H5_JOINT2_LOC_Y'] = 52
+        self.h5_lookup['H5_JOINT3_LOC_X'] = 54
+        self.h5_lookup['H5_JOINT3_LOC_Y'] = 55
+        self.h5_lookup['H5_JOINT4_LOC_X'] = 57
+        self.h5_lookup['H5_JOINT4_LOC_Y'] = 58
+        self.h5_lookup['H5_FINGER1_LOC_X'] = 60
+        self.h5_lookup['H5_FINGER1_LOC_Y'] = 61
+        self.h5_lookup['H5_FINGER2_LOC_X'] = 63
+        self.h5_lookup['H5_FINGER2_LOC_Y'] = 64
         self.name = name
 
 
@@ -172,21 +205,3 @@ class Frame:
         self.nextFrame = None
         self.prevFrame = None
         self.currentTask = None
-
-class MovingWindow:
-    def __init__(self, size: int, weights: tuple):
-        self.size = size
-        self.buffer = [(0, 0)] * size
-        self.weights = weights
-
-    def __len__(self):
-        return self.size
-
-    def update(self, new_value: Union[float, np.float32]):
-        self.buffer.pop()
-        self.buffer.insert(0, new_value)
-
-    def calc(self):
-        total_x = sum([self.buffer[i][0] * self.weights[i] for i in range(self.size)])
-        total_y = sum([self.buffer[i][1] * self.weights[i] for i in range(self.size)])
-        return total_x, total_y
