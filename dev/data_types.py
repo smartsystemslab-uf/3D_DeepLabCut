@@ -17,10 +17,7 @@ class Joint:
 
 class BoundingBox:
     def __init__(self, name, initial_vals=None):
-        self.top = HEIGHT
-        self.bot = 0
-        self.left = WIDTH
-        self.right = 0
+        self.reset()
         self.values = [self.top, self.bot, self.left, self.right]
 
         self.name = name
@@ -81,42 +78,53 @@ class BoundingBox:
         self.left = int(self.left)
         self.right = int(self.right)
 
+    def reset(self):
+        self.top = HEIGHT
+        self.bot = 0
+        self.left = WIDTH
+        self.right = 0
+
 
 class MovingWindow:
     def __init__(self, length: int, width:int, weights: Union[tuple, list, iter, range] = None):
         self.length = length
         self.width = width
-        self.buffer = np.zeros((length, width, 2))
+        self.buffer = np.empty((length, width, 2))
+        self.buffer[:] = np.nan
         self.shape = self.buffer.shape
 
         if not weights:
             # weights = np.arange(length, 0, -1)
             weights = np.ones(length)
-
         self.weights = weights[:, np.newaxis, np.newaxis]
 
     def __len__(self):
         return self.length
 
-    def update(self, new_joints: Union[np.ndarray]):
+    def update(self, new_diffs: Union[np.ndarray]):
         self.buffer = np.roll(self.buffer, 1, axis=0)
-        self.buffer[0] = new_joints
+        self.buffer[0] = new_diffs
 
     def estimate(self):
-        denominator = sum(self.weights)
-        numerator = self.buffer * self.weights
-        return numerator.sum(axis=0)/denominator
+        not_detected_joints = np.isnan(self.buffer)
+        denominator = np.sum(np.where(not_detected_joints, 0, self.weights), axis=0)
+        numerator = np.where(not_detected_joints, 0, self.buffer * self.weights)
+        current_estimate = np.nansum(numerator, axis=0) / denominator
+
+        diff_in_poses = current_estimate - self.buffer[-1]
+        next_pose = self.buffer[0] + diff_in_poses
+        return next_pose
 
 
 class Person:
-    def __init__(self, name, window_length=5):
+    def __init__(self, name, window_length=30):
         self.head = Joint('HEAD')
         self.chest = Joint('CHEST')
         self.shoulder_l = Joint('SHOULDER_L')
         self.elbow_l = Joint('ELBOW_L')
         self.wrist_l = Joint('WRIST_L')
         self.hip_l = Joint('HIP_L')
-        self.ankle_l = Joint('ANKKLE_L')
+        self.ankle_l = Joint('ANKLE_L')
         self.shoulder_r = Joint('SHOULDER_R')
         self.elbow_r = Joint('ELBOW_R')
         self.wrist_r = Joint('WRIST_R')
@@ -129,49 +137,14 @@ class Person:
         self.bbox = BoundingBox(name+'_bb')
         self.window = MovingWindow(length=window_length, width=len(self.joint_list))
 
-        # H5 POS Columns
-        self.h5_lookup = {}
-        self.h5_lookup['H5_HEAD_LOC_X'] = 66
-        self.h5_lookup['H5_HEAD_LOC_Y'] = 67
-        self.h5_lookup['H5_CHEST_LOC_X'] = 69
-        self.h5_lookup['H5_CHEST_LOC_Y'] = 70
-        self.h5_lookup['H5_SHOULDER_L_LOC_X'] = 72
-        self.h5_lookup['H5_SHOULDER_L_LOC_Y'] = 73
-        self.h5_lookup['H5_ELBOW_L_LOC_X'] = 78
-        self.h5_lookup['H5_ELBOW_L_LOC_Y'] = 79
-        self.h5_lookup['H5_WRIST_L_LOC_X'] = 84
-        self.h5_lookup['H5_WRIST_L_LOC_Y'] = 85
-        self.h5_lookup['H5_HIP_L_LOC_X'] = 93
-        self.h5_lookup['H5_HIP_L_LOC_Y'] = 94
-        self.h5_lookup['H5_ANKLE_L_LOC_X'] = 105
-        self.h5_lookup['H5_ANKLE_L_LOC_Y'] = 106
-        self.h5_lookup['H5_SHOULDER_R_LOC_X'] = 75
-        self.h5_lookup['H5_SHOULDER_R_LOC_Y'] = 76
-        self.h5_lookup['H5_ELBOW_R_LOC_X'] = 81
-        self.h5_lookup['H5_ELBOW_R_LOC_Y'] = 82
-        self.h5_lookup['H5_WRIST_R_LOC_X'] = 87
-        self.h5_lookup['H5_WRIST_R_LOC_Y'] = 88
-        self.h5_lookup['H5_HIP_R_LOC_X'] = 96
-        self.h5_lookup['H5_HIP_R_LOC_Y'] = 97
-        self.h5_lookup['H5_ANKLE_R_LOC_X'] = 108
-        self.h5_lookup['H5_ANKLE_R_LOC_Y'] = 109
-        self.h5_lookup['H5_PELVIS_LOC_X'] = 90
-        self.h5_lookup['H5_PELVIS_LOC_Y'] = 91
-
-        # # Output Camera 2 has knees which are not needed
-        # self.h5_lookup['H5_ANKLE_L_2_LOC_X'] = 105
-        # self.h5_lookup['H5_ANKLE_L_2_LOC_Y'] = 106
-        # self.h5_lookup['H5_ANKLE_R_2_LOC_X'] = 108
-        # self.h5_lookup['H5_ANKLE_R_2_LOC_Y'] = 109
-
 
 class Arm:
-    def __init__(self, name, window_length=5):
+    def __init__(self, name, window_length=30):
         self.base = Joint('BASE')
-        self.joint1 = Joint('JOINT1')
-        self.joint2 = Joint('JOINT2')
-        self.joint3 = Joint('JOINT3')
-        self.joint4 = Joint('JOINT4')
+        self.joint1 = Joint('JOINT_1')
+        self.joint2 = Joint('JOINT_2')
+        self.joint3 = Joint('JOINT_3')
+        self.joint4 = Joint('JOINT_4')
         self.finger1 = Joint('FINGER1')
         self.finger2 = Joint('FINGER2')
         self.joint_list = (self.base, self.joint1, self.joint2, self.joint3, self.joint4, self.finger1, self.finger2)
@@ -179,21 +152,21 @@ class Arm:
         self.window = MovingWindow(length=window_length, width=len(self.joint_list))
 
         # H5 POS Columns
-        self.h5_lookup = {}
-        self.h5_lookup['H5_BASE_LOC_X'] = 45
-        self.h5_lookup['H5_BASE_LOC_Y'] = 46
-        self.h5_lookup['H5_JOINT1_LOC_X'] = 48
-        self.h5_lookup['H5_JOINT1_LOC_Y'] = 49
-        self.h5_lookup['H5_JOINT2_LOC_X'] = 51
-        self.h5_lookup['H5_JOINT2_LOC_Y'] = 52
-        self.h5_lookup['H5_JOINT3_LOC_X'] = 54
-        self.h5_lookup['H5_JOINT3_LOC_Y'] = 55
-        self.h5_lookup['H5_JOINT4_LOC_X'] = 57
-        self.h5_lookup['H5_JOINT4_LOC_Y'] = 58
-        self.h5_lookup['H5_FINGER1_LOC_X'] = 60
-        self.h5_lookup['H5_FINGER1_LOC_Y'] = 61
-        self.h5_lookup['H5_FINGER2_LOC_X'] = 63
-        self.h5_lookup['H5_FINGER2_LOC_Y'] = 64
+        # self.h5_lookup = {}
+        # self.h5_lookup['H5_BASE_LOC_X'] = 45
+        # self.h5_lookup['H5_BASE_LOC_Y'] = 46
+        # self.h5_lookup['H5_JOINT1_LOC_X'] = 48
+        # self.h5_lookup['H5_JOINT1_LOC_Y'] = 49
+        # self.h5_lookup['H5_JOINT2_LOC_X'] = 51
+        # self.h5_lookup['H5_JOINT2_LOC_Y'] = 52
+        # self.h5_lookup['H5_JOINT3_LOC_X'] = 54
+        # self.h5_lookup['H5_JOINT3_LOC_Y'] = 55
+        # self.h5_lookup['H5_JOINT4_LOC_X'] = 57
+        # self.h5_lookup['H5_JOINT4_LOC_Y'] = 58
+        # self.h5_lookup['H5_FINGER1_LOC_X'] = 60
+        # self.h5_lookup['H5_FINGER1_LOC_Y'] = 61
+        # self.h5_lookup['H5_FINGER2_LOC_X'] = 63
+        # self.h5_lookup['H5_FINGER2_LOC_Y'] = 64
         self.name = name
 
 
