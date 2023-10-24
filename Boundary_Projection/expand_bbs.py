@@ -14,9 +14,11 @@ def populate_frames(file_prefix: Union[str, os.PathLike], num_body_types: int = 
     filename = 'dev/h5_data/' + file_prefix + '_el.h5'
     frames = []
 
-    vid_name = vid_lookup[file_prefix+ '_el.h5']
+    vid_name = vid_lookup[file_prefix + '_el.h5']
 
     vid = cv2.VideoCapture(vid_name)
+    size = int(vid.get(3)), int(vid.get(4))
+    saved_vid = cv2.VideoWriter('cam3_wbb.avi', cv2.VideoWriter_fourcc(*'MJPG'), 20, size)
 
     dataset = h5py.File(filename, "r")
 
@@ -52,15 +54,20 @@ def populate_frames(file_prefix: Union[str, os.PathLike], num_body_types: int = 
             img = add_bodies_to_frame(frame.persons, img, name_lookups, entry, person_colors)
 
             cv2.imshow('temp', img)
+            saved_vid.write(img)
 
             key = cv2.waitKey(MS_PER_FRAME)
             if key:
                 if key & 0xFF == ord('q'):
                     cv2.destroyAllWindows()
+                    vid.release()
+                    saved_vid.release()
                     break
                 elif key & 0xFF == ord('s'):
                     cv2.imwrite('saved_frame.jpg', img)
                     cv2.destroyAllWindows()
+                    vid.release()
+                    saved_vid.release()
                     break
 
             if frame_num > 0:
@@ -73,8 +80,11 @@ def populate_frames(file_prefix: Union[str, os.PathLike], num_body_types: int = 
 
             frames.append(frame)
     dataset.close()
+    vid.release()
+    saved_vid.release()
+    cv2.destroyAllWindows()
     return frames
 
 if __name__ == "__main__":
-    test_path = 'output_cam2DLC_dlcrnetms5_uf_cobotsJun7shuffle1_100000'
+    test_path = 'output_cam3DLC_resnet50_uf_cobots_multicamJun12shuffle1_50000'
     populate_frames(test_path)

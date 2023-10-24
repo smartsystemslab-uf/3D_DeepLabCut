@@ -12,11 +12,11 @@ from typing import Union
 
 vid_lookup = {}
 vid_lookup['output_cam2DLC_dlcrnetms5_uf_cobotsJun7shuffle1_100000_el.h5'] =\
-    'deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/videos/output_cam2.avi'
+    'deeplabcut_project/data/uf_cobots_multicam-Derek_Perdomo-2023-06-12/videos/output_cam2.avi'
 vid_lookup['output_cam1DLC_resnet50_uf_cobots_multicamJun12shuffle1_50000_el.h5'] = \
-    'deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/videos/output_cam1.avi'
+    'deeplabcut_project/data/uf_cobots_multicam-Derek_Perdomo-2023-06-12/videos/output_cam1.avi'
 vid_lookup['output_cam3DLC_resnet50_uf_cobots_multicamJun12shuffle1_50000_el.h5'] =\
-    'deeplabcut_project/uf_cobots_multicam-Derek_Perdomo-2023-06-12/videos/output_cam3.avi'
+    'deeplabcut_project/data/uf_cobots_multicam-Derek_Perdomo-2023-06-12/videos/output_cam3.avi'
 
 MS_PER_FRAME = int(1000/30)
 
